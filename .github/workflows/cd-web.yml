@@ -1,0 +1,118 @@
+# CD (web): mỗi lần nhánh main qua được test, tự đưa web lên GitHub Pages
+# Cần bật: Settings > Pages > Source = "GitHub Actions"
+name: CD Web
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  actions: read
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    # Chỉ triển khai commit main đã qua toàn bộ CI; vẫn cho phép chạy tay.
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ubuntu-latest
+    env:
+      ONNXRUNTIME_NODE_INSTALL: skip
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - name: Verify CI passed for this exact commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          sha=$(git rev-parse HEAD)
+          passed=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$sha&event=push&per_page=100" --jq '[.workflow_runs[] | select(.name == "CI" and .conclusion == "success")] | length')
+          if [ "$passed" -lt 1 ]; then
+            echo "This commit has no successful CI; wait for CI before deployment."
+            exit 1
+          fi
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Cài đặt, lint và test
+        working-directory: web
+        run: |
+          npm ci
+          npm run lint
+          npm test
+      - name: Chọn cấu hình Backend
+        id: backend
+        env:
+          API_URL: ${{ vars.VITE_API_URL }}
+        run: |
+          if [ -z "$API_URL" ]; then
+            echo "url=" >> "$GITHUB_OUTPUT"
+            echo "Chưa đặt VITE_API_URL: xuất bản trang công khai; các chức năng SQL chờ Backend."
+          else
+            case "$API_URL" in
+              https://*) echo "url=${API_URL%/}" >> "$GITHUB_OUTPUT" ;;
+              *) echo "VITE_API_URL phải là URL HTTPS của Backend online hoặc tunnel."; exit 1 ;;
+            esac
+          fi
+      - uses: actions/configure-pages@v5
+        id: pages
+      - name: Build
+        working-directory: web
+        env:
+          # URL Backend HTTPS khi đã có; để trống vẫn xuất bản được giao diện công khai.
+          VITE_API_URL: ${{ steps.backend.outputs.url }}
+          VITE_PAYMENT_API_URL: ${{ vars.VITE_PAYMENT_API_URL || steps.backend.outputs.url }}
+          VITE_PUBLIC_BASE_URL: ${{ vars.VITE_PUBLIC_BASE_URL || vars.VITE_PUBLIC_URL || format('{0}/', steps.pages.outputs.base_url) }}
+          VITE_ALLOW_LOCAL_DEMO: "false"
+          # Bản SQL Server không chuyển tài khoản sang Supabase khi thiếu URL API.
+          VITE_SUPABASE_URL: ""
+          VITE_SUPABASE_ANON_KEY: ""
+        run: npm run build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Wait for Pages artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          for attempt in {1..12}; do
+            count=$(gh api \
+              "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" \
+              --jq '[.artifacts[] | select(.name == "github-pages" and .expired == false)] | length')
+            if [ "$count" = "1" ]; then exit 0; fi
+            if [ "$count" -gt "1" ]; then
+              echo "Duplicate Pages artifacts"
+              exit 1
+            fi
+            sleep 5
+          done
+          echo "Pages artifact is missing after upload"
+          exit 1
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
+

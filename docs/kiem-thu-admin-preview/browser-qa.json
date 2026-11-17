@@ -1,0 +1,28 @@
+[
+  {
+    "viewport": 360,
+    "dashboard_links": 1,
+    "button_visible": true,
+    "label_visible": true,
+    "old_banner_count": 0,
+    "old_text_count": 0,
+    "header_top_px": 0,
+    "header_height_px": 97.625,
+    "body_scroll_width": 360,
+    "page_errors": [],
+    "screenshot": "/mnt/data/dubchef-admin-cong-khai-360px.png"
+  },
+  {
+    "viewport": 1280,
+    "dashboard_links": 1,
+    "button_visible": true,
+    "label_visible": true,
+    "old_banner_count": 0,
+    "old_text_count": 0,
+    "header_top_px": 0,
+    "header_height_px": 69,
+    "body_scroll_width": 1280,
+    "page_errors": [],
+    "screenshot": "/mnt/data/dubchef-admin-cong-khai-1280px.png"
+  }
+]

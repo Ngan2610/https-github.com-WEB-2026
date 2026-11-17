@@ -1,0 +1,281 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net">
+  <diagram id="DFD_Muc_1" name="DFD_Muc_1">
+    <mxGraphModel page="1" pageWidth="1380" pageHeight="1273" grid="0" background="#ffffff">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="3" parent="1" vertex="1" value="Khách / thành viên /&#10;Admin" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="26" y="33" width="188" height="72" />
+        </mxCell>
+        <mxCell id="4" parent="1" vertex="1" value="1.0  Xác thực và hồ sơ" style="ellipse;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="529" y="19" width="300" height="100" />
+        </mxCell>
+        <mxCell id="5" parent="1" edge="1" source="3" target="4" value="Thông tin đăng nhập và hồ sơ" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.27;entryX=0;entryY=0.334;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="-16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="6" parent="1" edge="1" source="4" target="3" value="Phiên, hồ sơ, trạng thái" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0;exitY=0.666;entryX=1;entryY=0.73;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="7" parent="1" vertex="1" value="D1  Tài khoản và lịch sử&#10;đăng nhập" style="shape=partialRectangle;left=0;right=0;top=1;bottom=1;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=14;fontStyle=0;">
+          <mxGeometry as="geometry" x="1142" y="30" width="210" height="78" />
+        </mxCell>
+        <mxCell id="8" parent="1" edge="1" source="7" target="4" value="Hồ sơ và trạng thái" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0;exitY=0.29;entryX=1;entryY=0.336;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="-16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9" parent="1" edge="1" source="4" target="7" value="Tài khoản / lịch sử" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.666;entryX=0;entryY=0.71;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="10" parent="1" vertex="1" value="Khách / thành viên" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="26" y="146" width="188" height="72" />
+        </mxCell>
+        <mxCell id="11" parent="1" vertex="1" value="2.0  Video, dịch và xuất tệp" style="ellipse;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="529" y="132" width="300" height="100" />
+        </mxCell>
+        <mxCell id="12" parent="1" edge="1" source="10" target="11" value="Video, ngôn ngữ, lời thoại Mobile" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.27;entryX=0;entryY=0.334;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="-16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="13" parent="1" edge="1" source="11" target="10" value="Phụ đề và giọng đọc" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0;exitY=0.666;entryX=1;entryY=0.73;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="14" parent="1" vertex="1" value="Thành viên" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="26" y="259" width="188" height="72" />
+        </mxCell>
+        <mxCell id="15" parent="1" vertex="1" value="2.0  Video, dịch và xuất tệp" style="ellipse;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="529" y="245" width="300" height="100" />
+        </mxCell>
+        <mxCell id="16" parent="1" edge="1" source="14" target="15" value="Video, ngôn ngữ, tùy chọn job" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.27;entryX=0;entryY=0.334;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="-16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="17" parent="1" edge="1" source="15" target="14" value="Bản dịch, video, tiến độ, tệp xuất" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0;exitY=0.666;entryX=1;entryY=0.73;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="18" parent="1" vertex="1" value="D2 / D6 / D7 / D9" style="shape=partialRectangle;left=0;right=0;top=1;bottom=1;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=14;fontStyle=0;">
+          <mxGeometry as="geometry" x="1142" y="256" width="210" height="78" />
+        </mxCell>
+        <mxCell id="19" parent="1" edge="1" source="18" target="15" value="Nội dung, ngôn ngữ, job, tệp" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0;exitY=0.29;entryX=1;entryY=0.336;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="-16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="20" parent="1" edge="1" source="15" target="18" value="Video, kết quả, job và tệp" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.666;entryX=0;entryY=0.71;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="21" parent="1" vertex="1" value="Thành viên" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="26" y="372" width="188" height="72" />
+        </mxCell>
+        <mxCell id="22" parent="1" vertex="1" value="2.0  Video, dịch và xuất tệp" style="ellipse;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="529" y="358" width="300" height="100" />
+        </mxCell>
+        <mxCell id="23" parent="1" edge="1" source="21" target="22" value="Yêu cầu xử lý video" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.27;entryX=0;entryY=0.334;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="-16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="24" parent="1" edge="1" source="22" target="21" value="Trạng thái xử lý" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0;exitY=0.666;entryX=1;entryY=0.73;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25" parent="1" vertex="1" value="D3 / D8" style="shape=partialRectangle;left=0;right=0;top=1;bottom=1;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=14;fontStyle=0;">
+          <mxGeometry as="geometry" x="1142" y="369" width="210" height="78" />
+        </mxCell>
+        <mxCell id="26" parent="1" edge="1" source="25" target="22" value="Quyền sử dụng và lịch sử" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0;exitY=0.29;entryX=1;entryY=0.336;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="-16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="27" parent="1" edge="1" source="22" target="25" value="Lượt sử dụng và phiên bản" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.666;entryX=0;entryY=0.71;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="28" parent="1" vertex="1" value="Thành viên" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="26" y="485" width="188" height="72" />
+        </mxCell>
+        <mxCell id="29" parent="1" vertex="1" value="3.0  Đơn hàng và thanh toán" style="ellipse;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="529" y="471" width="300" height="100" />
+        </mxCell>
+        <mxCell id="30" parent="1" edge="1" source="28" target="29" value="Gói, số lượng, loại tiền, mã đơn" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.27;entryX=0;entryY=0.334;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="-16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="31" parent="1" edge="1" source="29" target="28" value="Đơn, checkout, trạng thái và lượt" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0;exitY=0.666;entryX=1;entryY=0.73;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="32" parent="1" vertex="1" value="D3  Giá, đơn, giao dịch&#10;và quyền sử dụng" style="shape=partialRectangle;left=0;right=0;top=1;bottom=1;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=14;fontStyle=0;">
+          <mxGeometry as="geometry" x="1142" y="482" width="210" height="78" />
+        </mxCell>
+        <mxCell id="33" parent="1" edge="1" source="32" target="29" value="Giá, số tiền, trạng thái" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0;exitY=0.29;entryX=1;entryY=0.336;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="-16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="34" parent="1" edge="1" source="29" target="32" value="Đơn, giao dịch và quyền" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.666;entryX=0;entryY=0.71;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="35" parent="1" vertex="1" value="Khách / thành viên" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="26" y="598" width="188" height="72" />
+        </mxCell>
+        <mxCell id="36" parent="1" vertex="1" value="4.0  Liên hệ và phản hồi" style="ellipse;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="529" y="584" width="300" height="100" />
+        </mxCell>
+        <mxCell id="37" parent="1" edge="1" source="35" target="36" value="Thông tin liên hệ" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.27;entryX=0;entryY=0.334;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="-16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="38" parent="1" edge="1" source="36" target="35" value="Xác nhận tiếp nhận" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0;exitY=0.666;entryX=1;entryY=0.73;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="39" parent="1" vertex="1" value="D4  Liên hệ và phản hồi" style="shape=partialRectangle;left=0;right=0;top=1;bottom=1;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=14;fontStyle=0;">
+          <mxGeometry as="geometry" x="1142" y="595" width="210" height="78" />
+        </mxCell>
+        <mxCell id="40" parent="1" edge="1" source="36" target="39" value="Liên hệ mới" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.666;entryX=0;entryY=0.71;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="41" parent="1" vertex="1" value="Thành viên" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="26" y="711" width="188" height="72" />
+        </mxCell>
+        <mxCell id="42" parent="1" vertex="1" value="4.0  Liên hệ và phản hồi" style="ellipse;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="529" y="697" width="300" height="100" />
+        </mxCell>
+        <mxCell id="43" parent="1" edge="1" source="41" target="42" value="Phản hồi / yêu cầu xem" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.27;entryX=0;entryY=0.334;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="-16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="44" parent="1" edge="1" source="42" target="41" value="Phản hồi và câu trả lời" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0;exitY=0.666;entryX=1;entryY=0.73;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45" parent="1" vertex="1" value="D4 / D2" style="shape=partialRectangle;left=0;right=0;top=1;bottom=1;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=14;fontStyle=0;">
+          <mxGeometry as="geometry" x="1142" y="708" width="210" height="78" />
+        </mxCell>
+        <mxCell id="46" parent="1" edge="1" source="45" target="42" value="Phản hồi và chủ video" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0;exitY=0.29;entryX=1;entryY=0.336;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="-16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="47" parent="1" edge="1" source="42" target="45" value="Phản hồi" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.666;entryX=0;entryY=0.71;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="48" parent="1" vertex="1" value="Quản trị viên" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="26" y="824" width="188" height="72" />
+        </mxCell>
+        <mxCell id="49" parent="1" vertex="1" value="5.0  Quản trị và thống kê" style="ellipse;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="529" y="810" width="300" height="100" />
+        </mxCell>
+        <mxCell id="50" parent="1" edge="1" source="48" target="49" value="Tra cứu và cập nhật dữ liệu" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.27;entryX=0;entryY=0.334;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="-16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="51" parent="1" edge="1" source="49" target="48" value="Danh sách, lịch sử, báo cáo" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0;exitY=0.666;entryX=1;entryY=0.73;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="52" parent="1" vertex="1" value="D1–D9" style="shape=partialRectangle;left=0;right=0;top=1;bottom=1;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=14;fontStyle=0;">
+          <mxGeometry as="geometry" x="1142" y="821" width="210" height="78" />
+        </mxCell>
+        <mxCell id="53" parent="1" edge="1" source="52" target="49" value="Dữ liệu nghiệp vụ" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0;exitY=0.29;entryX=1;entryY=0.336;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="-16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="54" parent="1" edge="1" source="49" target="52" value="Cập nhật và nhật ký" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.666;entryX=0;entryY=0.71;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="55" parent="1" vertex="1" value="Khách / thành viên" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="26" y="937" width="188" height="72" />
+        </mxCell>
+        <mxCell id="56" parent="1" vertex="1" value="6.0  Truy cập và QR trải nghiệm" style="ellipse;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="529" y="923" width="300" height="100" />
+        </mxCell>
+        <mxCell id="57" parent="1" edge="1" source="55" target="56" value="Mã khách, trang và ngôn ngữ" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.27;entryX=0;entryY=0.334;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="-16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="58" parent="1" edge="1" source="56" target="55" value="Trạng thái ghi nhận" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0;exitY=0.666;entryX=1;entryY=0.73;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="59" parent="1" vertex="1" value="D5  Truy cập và quét QR" style="shape=partialRectangle;left=0;right=0;top=1;bottom=1;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=14;fontStyle=0;">
+          <mxGeometry as="geometry" x="1142" y="934" width="210" height="78" />
+        </mxCell>
+        <mxCell id="60" parent="1" edge="1" source="56" target="59" value="Lượt truy cập / lượt quét" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.666;entryX=0;entryY=0.71;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="61" parent="1" vertex="1" value="Hugging Face Hub" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="26" y="1050" width="188" height="72" />
+        </mxCell>
+        <mxCell id="62" parent="1" vertex="1" value="2.0  Video, dịch và xuất tệp" style="ellipse;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="529" y="1036" width="300" height="100" />
+        </mxCell>
+        <mxCell id="63" parent="1" edge="1" source="61" target="62" value="Model Whisper" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.27;entryX=0;entryY=0.334;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="-16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="64" parent="1" edge="1" source="62" target="61" value="Yêu cầu tải model" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0;exitY=0.666;entryX=1;entryY=0.73;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="65" parent="1" vertex="1" value="payOS" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="26" y="1163" width="188" height="72" />
+        </mxCell>
+        <mxCell id="66" parent="1" vertex="1" value="3.0  Đơn hàng và thanh toán" style="ellipse;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="529" y="1149" width="300" height="100" />
+        </mxCell>
+        <mxCell id="67" parent="1" edge="1" source="65" target="66" value="Link thanh toán và webhook" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.27;entryX=0;entryY=0.334;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="-16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="68" parent="1" edge="1" source="66" target="65" value="Yêu cầu checkout và xác nhận" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0;exitY=0.666;entryX=1;entryY=0.73;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="16" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

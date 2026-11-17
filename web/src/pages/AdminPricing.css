@@ -1,0 +1,28 @@
+/* Pricing management: scoped to this page, no changes to the existing admin shell. */
+.adm-pricing{width:100%;min-width:0}
+.adm-pricing .panel{min-width:0}
+.adm-pricing .panel h2{font-size:1.17rem;margin:0 0 8px}
+.adm-pricing .fine{font-size:.86rem;line-height:1.5;color:var(--muted);margin:6px 0 12px}
+.adm-price-section-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.adm-price-currency,.adm-price-field{display:grid;gap:7px;font-size:.83rem;font-weight:650;min-width:0}
+.adm-price-currency{max-width:340px;margin:12px 0}
+.adm-price-currency select,.adm-price-field input,.adm-price-field textarea,.adm-price-field select{
+  width:100%;min-width:0;min-height:42px;padding:9px 12px;border-radius:9px;
+  border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;font-weight:450;
+}
+.adm-price-field textarea{min-height:76px;resize:vertical}
+.adm-price-form{display:grid;gap:12px}
+.adm-price-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;margin:7px 0}
+.adm-price-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.adm-price-alert,.adm-price-success{padding:12px 15px;border-radius:9px;font-size:.87rem;margin-bottom:14px}
+.adm-price-alert{background:#ffe8e6;color:#862d25}
+.adm-price-success{background:#e2f3e9;color:#17613d}
+.adm-price-state{display:inline-flex;align-items:center;border-radius:20px;padding:5px 9px;font-size:.75rem;font-weight:700;white-space:nowrap}
+.adm-price-state[data-state=active]{background:#e2f3e9;color:#17613d}
+.adm-price-state[data-state=hidden]{background:#eceef1;color:#555c69}
+.adm-pack-editor{border:1px solid var(--line);border-radius:13px;background:var(--bg);padding:18px;margin-top:20px;display:grid;gap:12px}
+.adm-pack-editor h3{margin:0;font-size:1.05rem}
+.adm-pricing .adm-table-wrap{overflow-x:auto;max-width:100%}
+.adm-pricing .adm-table th,.adm-pricing .adm-table td{vertical-align:middle}
+.adm-pricing .adm-table td .btn{white-space:nowrap}
+@media(max-width:700px){.adm-price-fields{grid-template-columns:1fr}.adm-pricing .panel{padding:15px}.adm-price-section-heading>.btn{width:100%;justify-content:center}}

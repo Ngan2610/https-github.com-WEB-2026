@@ -1,0 +1,12 @@
+{
+  "name": "dubchef-translation-service",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Microservice dịch phụ đề video nấu ăn: từ điển ẩm thực + quy đổi đơn vị + Ollama",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test test/*.test.mjs"
+  }
+}

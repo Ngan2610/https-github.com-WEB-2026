@@ -1,0 +1,13 @@
+{
+  "currencies": [
+    {"currency":"VND","uploadMinor":20000,"translationMinor":10000,"maxVideos":500,"maxTranslations":3,"annualDiscountPct":20,"version":1},
+    {"currency":"USD","uploadMinor":80,"translationMinor":40,"maxVideos":500,"maxTranslations":3,"annualDiscountPct":20,"version":1},
+    {"currency":"CNY","uploadMinor":600,"translationMinor":300,"maxVideos":500,"maxTranslations":3,"annualDiscountPct":20,"version":1}
+  ],
+  "packs": [
+    {"id":1,"name":"Bếp gia đình","uploads":3,"outs":3,"enabled":true},
+    {"id":2,"name":"Nhóm sáng tạo","uploads":10,"outs":20,"enabled":true},
+    {"id":3,"name":"Kênh ẩm thực","uploads":30,"outs":90,"enabled":true},
+    {"id":4,"name":"Nhóm sản xuất","uploads":100,"outs":300,"enabled":true}
+  ]
+}

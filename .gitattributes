@@ -1,0 +1,4 @@
+# Migration checksums depend on the exact bytes used by SQL Server and SSMS.
+db/migrations/[0-9]*.sql text eol=lf
+db/migrations/001_preflight.sql text eol=crlf
+db/migrations/RUN_ALL_IN_SSMS.sql -text

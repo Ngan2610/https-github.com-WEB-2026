@@ -1,0 +1,125 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net">
+  <diagram id="ERD_SQL" name="ERD_SQL">
+    <mxGraphModel page="1" pageWidth="1810" pageHeight="2280" grid="0" background="#ffffff">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="3" parent="1" vertex="1" value="Tài khoản và dữ liệu vận hành" style="rounded=0;dashed=1;verticalAlign=top;spacingTop=8;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=20;fontStyle=1;">
+          <mxGeometry as="geometry" x="17" y="21" width="1776" height="328" />
+        </mxCell>
+        <mxCell id="4" parent="1" vertex="1" value="NguoiDung&#10;PK  MaNguoiDung&#10;UK  Email" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="34" y="67" width="400" height="88" />
+        </mxCell>
+        <mxCell id="5" parent="1" vertex="1" value="LichSuDangNhap&#10;PK  MaLichSu&#10;FK  MaNguoiDung&#10;→ NguoiDung(MaNguoiDung)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="479" y="67" width="400" height="108" />
+        </mxCell>
+        <mxCell id="6" parent="1" vertex="1" value="LanDangNhapSai&#10;PK  IpHash" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="924" y="67" width="400" height="68" />
+        </mxCell>
+        <mxCell id="7" parent="1" vertex="1" value="MaDatLaiMatKhau&#10;PK  MaToken&#10;UK  TokenSha256&#10;FK  MaNguoiDung&#10;→ NguoiDung(MaNguoiDung)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="1369" y="67" width="400" height="128" />
+        </mxCell>
+        <mxCell id="8" parent="1" vertex="1" value="CauHinhHeThong&#10;PK  Khoa&#10;FK  MaNguoiSua (NULL)&#10;→ NguoiDung(MaNguoiDung)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="34" y="219" width="400" height="108" />
+        </mxCell>
+        <mxCell id="9" parent="1" vertex="1" value="SchemaMigrations&#10;PK  Version" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="479" y="219" width="400" height="68" />
+        </mxCell>
+        <mxCell id="10" parent="1" vertex="1" value="Video, ngôn ngữ và hàng đợi" style="rounded=0;dashed=1;verticalAlign=top;spacingTop=8;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=20;fontStyle=1;">
+          <mxGeometry as="geometry" x="17" y="361" width="1776" height="488" />
+        </mxCell>
+        <mxCell id="11" parent="1" vertex="1" value="NgonNgu&#10;PK  MaNgonNgu" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="34" y="407" width="400" height="68" />
+        </mxCell>
+        <mxCell id="12" parent="1" vertex="1" value="Video&#10;PK  MaVideo&#10;UK* MaNguoiDung, MaYeuCauTaiLen&#10;Khi MaYeuCauTaiLen IS NOT NULL&#10;FK  MaNguoiDung&#10;→ NguoiDung(MaNguoiDung)&#10;FK  NgonNguGoc&#10;→ NgonNgu(MaNgonNgu)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="479" y="407" width="400" height="188" />
+        </mxCell>
+        <mxCell id="13" parent="1" vertex="1" value="ThuyetMinh&#10;PK  MaThuyetMinh&#10;UK  MaVideo, NgonNgu&#10;FK  MaVideo&#10;→ Video(MaVideo)&#10;FK  NgonNgu&#10;→ NgonNgu(MaNgonNgu)&#10;FK  NguoiSuaId (NULL)&#10;→ NguoiDung(MaNguoiDung)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="924" y="407" width="400" height="208" />
+        </mxCell>
+        <mxCell id="14" parent="1" vertex="1" value="PhuDe&#10;PK  MaPhuDe&#10;UK  MaVideo, NgonNgu&#10;FK  MaVideo&#10;→ Video(MaVideo)&#10;FK  NgonNgu&#10;→ NgonNgu(MaNgonNgu)&#10;FK  NguoiSuaId (NULL)&#10;→ NguoiDung(MaNguoiDung)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="1369" y="407" width="400" height="208" />
+        </mxCell>
+        <mxCell id="15" parent="1" vertex="1" value="LichSuNoiDung&#10;PK  MaLichSu&#10;FK  NgonNgu&#10;→ NgonNgu(MaNgonNgu)&#10;FK  MaVideo (NULL)&#10;→ Video(MaVideo)&#10;FK  NguoiSuaId (NULL)&#10;→ NguoiDung(MaNguoiDung)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="34" y="639" width="400" height="188" />
+        </mxCell>
+        <mxCell id="16" parent="1" vertex="1" value="CongViecXuLy&#10;PK  MaCongViec&#10;FK  MaVideo (NULL)&#10;→ Video(MaVideo)&#10;FK  MaNguoiDung&#10;→ NguoiDung(MaNguoiDung)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="479" y="639" width="400" height="148" />
+        </mxCell>
+        <mxCell id="17" parent="1" vertex="1" value="TepXuat&#10;PK  MaTep&#10;UK* MaCongViec, DuongDan&#10;Khi MaCongViec IS NOT NULL&#10;FK  MaCongViec (NULL)&#10;→ CongViecXuLy(MaCongViec)&#10;FK  MaVideo (NULL)&#10;→ Video(MaVideo)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="924" y="639" width="400" height="188" />
+        </mxCell>
+        <mxCell id="18" parent="1" vertex="1" value="Đơn hàng, đơn giá và quyền sử dụng" style="rounded=0;dashed=1;verticalAlign=top;spacingTop=8;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=20;fontStyle=1;">
+          <mxGeometry as="geometry" x="17" y="861" width="1776" height="720" />
+        </mxCell>
+        <mxCell id="19" parent="1" vertex="1" value="BangGia&#10;PK  LoaiTien" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="34" y="907" width="400" height="68" />
+        </mxCell>
+        <mxCell id="20" parent="1" vertex="1" value="LichSuBangGia&#10;PK  MaLichSu&#10;FK  LoaiTien&#10;→ BangGia(LoaiTien)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="479" y="907" width="400" height="108" />
+        </mxCell>
+        <mxCell id="21" parent="1" vertex="1" value="GoiDichVu&#10;PK  MaGoi&#10;Danh mục gói hiển thị qua API giá" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="924" y="907" width="400" height="88" />
+        </mxCell>
+        <mxCell id="22" parent="1" vertex="1" value="DonHang&#10;PK  MaDonHang&#10;UK  MaDonHang, LoaiTien, SoTien&#10;UK  MaDonHang, MaNguoiDung&#10;FK  MaNguoiDung (NULL)&#10;→ NguoiDung(MaNguoiDung)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="1369" y="907" width="400" height="148" />
+        </mxCell>
+        <mxCell id="23" parent="1" vertex="1" value="GiaoDich&#10;PK  MaGiaoDich&#10;UK  MaThamChieu&#10;UK* MaDonHang&#10;Khi TrangThai='success'&#10;UK* PayOSOrderCode&#10;Khi PayOSOrderCode IS NOT NULL&#10;FK  MaDonHang&#10;→ DonHang(MaDonHang)&#10;FK  MaDonHang, LoaiTien, SoTien&#10;→ DonHang(MaDonHang, LoaiTien, SoTien)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="34" y="1079" width="400" height="248" />
+        </mxCell>
+        <mxCell id="24" parent="1" vertex="1" value="WebhookNhan&#10;PK  MaWebhook&#10;UK  EventId&#10;FK  MaDonHang (NULL)&#10;→ DonHang(MaDonHang)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="479" y="1079" width="400" height="128" />
+        </mxCell>
+        <mxCell id="25" parent="1" vertex="1" value="QuyenLoiGoi&#10;PK  MaQuyenLoi&#10;UK  MaDonHang&#10;FK  MaDonHang&#10;→ DonHang(MaDonHang)&#10;FK  MaNguoiDung&#10;→ NguoiDung(MaNguoiDung)&#10;FK  MaDonHang, MaNguoiDung&#10;→ DonHang(MaDonHang, MaNguoiDung)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="924" y="1079" width="400" height="208" />
+        </mxCell>
+        <mxCell id="26" parent="1" vertex="1" value="SuDungQuyenLoi&#10;PK  MaSuDung&#10;UK* MaVideo, Loai, NgonNgu&#10;Khi TrangThai='used' AND MaVideo IS NOT NULL&#10;FK  MaQuyenLoi&#10;→ QuyenLoiGoi(MaQuyenLoi)&#10;FK  MaVideo (NULL)&#10;→ Video(MaVideo)&#10;FK  NgonNgu (NULL)&#10;→ NgonNgu(MaNgonNgu)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="1369" y="1079" width="400" height="228" />
+        </mxCell>
+        <mxCell id="27" parent="1" vertex="1" value="XacMinhChuDonHang&#10;PK  MaXacMinh&#10;UK  MaDonHang&#10;FK  MaDonHang&#10;→ DonHang(MaDonHang)&#10;FK  MaNguoiDung&#10;→ NguoiDung(MaNguoiDung)&#10;FK  NguoiXacMinhId (NULL)&#10;→ NguoiDung(MaNguoiDung)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="34" y="1351" width="400" height="208" />
+        </mxCell>
+        <mxCell id="28" parent="1" vertex="1" value="Hỗ trợ, thống kê và nhật ký" style="rounded=0;dashed=1;verticalAlign=top;spacingTop=8;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=20;fontStyle=1;">
+          <mxGeometry as="geometry" x="17" y="1593" width="1776" height="388" />
+        </mxCell>
+        <mxCell id="29" parent="1" vertex="1" value="PhanHoi&#10;PK  MaPhanHoi&#10;FK  MaNguoiDung&#10;→ NguoiDung(MaNguoiDung)&#10;FK  MaVideo (NULL)&#10;→ Video(MaVideo)&#10;FK  NguoiXuLyId (NULL)&#10;→ NguoiDung(MaNguoiDung)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="34" y="1639" width="400" height="188" />
+        </mxCell>
+        <mxCell id="30" parent="1" vertex="1" value="LienHe&#10;PK  MaLienHe&#10;FK  NguoiXuLyId (NULL)&#10;→ NguoiDung(MaNguoiDung)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="479" y="1639" width="400" height="108" />
+        </mxCell>
+        <mxCell id="31" parent="1" vertex="1" value="LichSuXuLyPhanHoi&#10;PK  MaLichSu&#10;FK  MaPhanHoi (NULL)&#10;→ PhanHoi(MaPhanHoi)&#10;FK  MaLienHe (NULL)&#10;→ LienHe(MaLienHe)&#10;FK  NguoiXuLyId (NULL)&#10;→ NguoiDung(MaNguoiDung)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="924" y="1639" width="400" height="188" />
+        </mxCell>
+        <mxCell id="32" parent="1" vertex="1" value="LuotTruyCap&#10;PK  MaLuot&#10;FK  NgonNgu&#10;→ NgonNgu(MaNgonNgu)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="1369" y="1639" width="400" height="108" />
+        </mxCell>
+        <mxCell id="33" parent="1" vertex="1" value="LuotQuetQR&#10;PK  MaLuotQuet&#10;FK  NgonNgu&#10;→ NgonNgu(MaNgonNgu)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="34" y="1851" width="400" height="108" />
+        </mxCell>
+        <mxCell id="34" parent="1" vertex="1" value="NhatKyQuanTri&#10;PK  MaNhatKy&#10;FK  NguoiThucHienId (NULL)&#10;→ NguoiDung(MaNguoiDung)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="479" y="1851" width="400" height="108" />
+        </mxCell>
+        <mxCell id="35" parent="1" vertex="1" value="Bảng giá theo kỳ, tỷ giá và lịch sử chưa tích hợp" style="rounded=0;dashed=1;verticalAlign=top;spacingTop=8;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=20;fontStyle=1;">
+          <mxGeometry as="geometry" x="17" y="1993" width="1776" height="176" />
+        </mxCell>
+        <mxCell id="36" parent="1" vertex="1" value="BangGiaDonVi&#10;PK  MaGia&#10;UK  LoaiTien, HieuLucTu" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="34" y="2039" width="400" height="88" />
+        </mxCell>
+        <mxCell id="37" parent="1" vertex="1" value="TyGia&#10;PK  MaTyGia&#10;UK  LoaiTien, NgayHieuLuc" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="479" y="2039" width="400" height="88" />
+        </mxCell>
+        <mxCell id="38" parent="1" vertex="1" value="LichSuDoiGia&#10;PK  MaLichSu&#10;FK  MaNguoiDung (NULL)&#10;→ NguoiDung(MaNguoiDung)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="924" y="2039" width="400" height="108" />
+        </mxCell>
+        <mxCell id="39" parent="1" vertex="1" value="PK = khóa chính • FK = khóa ngoại • UK = duy nhất • UK* = duy nhất có điều kiện • Mũi tên → chỉ bảng và cột được tham chiếu" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="17" y="2181" width="1776" height="38" />
+        </mxCell>
+        <mxCell id="40" parent="1" vertex="1" value="Migration 022 kiểm tra giao dịch của đơn đã trả, chủ video của job, cùng video của tệp xuất và nguồn lịch sử phản hồi." style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="17" y="2232" width="1776" height="35" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

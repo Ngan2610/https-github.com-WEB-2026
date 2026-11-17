@@ -1,0 +1,35 @@
+{
+  "stt": "real Whisper tiny CPU",
+  "language": "en",
+  "timeline": [
+    {
+      "text": "and two cups of water, and fish sauce, and garlic, simmer for 5 minutes.",
+      "start": 0,
+      "end": 6.48
+    }
+  ],
+  "formats": [
+    {
+      "format": "mp3",
+      "size": 57476,
+      "sha256": "0401966e3a32937897518d03c580f3c509a60730c9b3f5e5fdf2fbabaaa18b11"
+    },
+    {
+      "format": "mp4",
+      "size": 79426,
+      "sha256": "21e7d3f0f7eef893cd9f3484d4cbc2e99ab91a4cdc11edc4e39d132944155ebe"
+    },
+    {
+      "format": "srt",
+      "size": 105,
+      "sha256": "2b1cf844b9733217d7be27a66fc6dec09c4a7b88d07bf6b4acd2b9d474f8c633"
+    },
+    {
+      "format": "vtt",
+      "size": 111,
+      "sha256": "2870b3e682e91f6e31d500e7a1a2a5f8f840aacb0e0be757ab724694e701deb8"
+    }
+  ],
+  "translation": "not exercised (source language only)",
+  "repository": "in-memory test adapter; SQL not executed in this upgrade environment"
+}

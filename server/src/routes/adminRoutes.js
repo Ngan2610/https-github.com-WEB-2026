@@ -1,0 +1,32 @@
+import {asyncRoute as wrap} from '../http/asyncRoute.js';
+export function registerAdminRoutes(app,{services,adminOnly}){
+  const service=services.admin;
+  app.get('/api/admin/overview',adminOnly,wrap(async(req,res)=>res.json(await service.overview(req.currentUser,req.query.days))));
+  app.get('/api/admin/qr',adminOnly,wrap(async(req,res)=>res.json(await service.overview(req.currentUser,req.query.days,true))));
+  app.get('/api/admin/users',adminOnly,wrap(async(req,res)=>res.json(await service.users(req.currentUser))));
+  app.get('/api/admin/dashboard',adminOnly,wrap(async(req,res)=>res.json(await service.dashboard(req.currentUser))));
+  app.get('/api/admin/statistics',adminOnly,wrap(async(req,res)=>res.json(await service.statistics(req.currentUser))));
+  app.get('/api/admin/videos',adminOnly,wrap(async(req,res)=>res.json(await service.videos(req.currentUser))));
+  app.get('/api/admin/media/:kind',adminOnly,wrap(async(req,res)=>res.json(await service.mediaIndex(req.currentUser,req.params.kind))));
+  app.get('/api/admin/media/:kind/:id/:language/history',adminOnly,wrap(async(req,res)=>res.json(await service.mediaHistory(req.currentUser,req.params))));
+  app.get('/api/admin/media/:kind/:id/:language',adminOnly,wrap(async(req,res)=>res.json(await service.mediaDetail(req.currentUser,req.params))));
+  app.put('/api/admin/media/:kind/:id/:language',adminOnly,wrap(async(req,res)=>res.json(await service.saveMedia(req.currentUser,req.params,req.body))));
+  app.get('/api/admin/languages',adminOnly,wrap(async(req,res)=>res.json(await service.languages(req.currentUser))));
+  app.post('/api/admin/languages',adminOnly,wrap(async(req,res)=>res.status(201).json(await service.createLanguage(req.currentUser,req.body))));
+  app.patch('/api/admin/languages/:code',adminOnly,wrap(async(req,res)=>res.json(await service.updateLanguage(req.currentUser,req.params.code,req.body))));
+  app.patch('/api/admin/videos/:id/results/:kind/:language',adminOnly,wrap(async(req,res)=>res.json(await service.legacyMedia(req.currentUser,req.params,req.body))));
+  app.get('/api/admin/videos/:id/translations',adminOnly,wrap(async(req,res)=>res.json(await service.translations(req.currentUser,req.params.id))));
+  app.patch('/api/admin/videos/:id',adminOnly,wrap(async(req,res)=>res.json(await service.setVideoStatus(req.currentUser,req.params.id,req.body))));
+  app.delete('/api/admin/videos/:id',adminOnly,wrap(async(req,res)=>res.json(await service.deleteVideo(req.currentUser,req.params.id))));
+  app.get('/api/admin/feedback',adminOnly,wrap(async(req,res)=>res.json(await service.feedback(req.currentUser))));
+  app.get('/api/admin/feedback/:id/history',adminOnly,wrap(async(req,res)=>res.json(await service.feedbackHistory(req.currentUser,req.params.id))));
+  app.patch('/api/admin/feedback/:id',adminOnly,wrap(async(req,res)=>res.json(await service.handleFeedback(req.currentUser,req.params.id,req.body))));
+  app.get('/api/admin/entitlements',adminOnly,wrap(async(req,res)=>res.json(await service.entitlements(req.currentUser,req.query.email))));
+  app.get('/api/admin/orders',adminOnly,wrap(async(req,res)=>res.json(await service.orders(req.currentUser))));
+  app.get('/api/admin/orders/:id/owner-candidates',adminOnly,wrap(async(req,res)=>res.json(await service.ownerCandidates(req.currentUser,req.params.id))));
+  app.post('/api/admin/orders/:id/link-owner',adminOnly,wrap(async(req,res)=>res.json(await service.linkOwner(req.currentUser,req.params.id,req.body))));
+  app.get('/api/admin/audit',adminOnly,wrap(async(req,res)=>res.json(await service.audit(req.currentUser,req.query.limit))));
+  app.patch('/api/admin/users',adminOnly,wrap(async(req,res)=>res.json(await service.userStatus(req.currentUser,req.body))));
+  app.post('/api/admin/users/anonymize',adminOnly,wrap(async(req,res)=>res.json(await service.anonymize(req.currentUser,req.body))));
+  app.delete('/api/admin/users',adminOnly,wrap(async(req,res)=>res.json(await service.deleteUser(req.currentUser,req.query.email))));
+}

@@ -1,0 +1,275 @@
+# Dubchef – complete stack with microservices + job queue
+# Chạy:  docker compose up -d --build
+# Dừng:  docker compose down
+# Xóa dữ liệu: docker compose down -v   (CẨN THẬN)
+name: dubchef
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: dubchef-db
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${DB_PASSWORD:?Chay npm run setup:local de tao .env va DB_PASSWORD}
+    ports:
+      - "${DB_BIND_ADDRESS:-127.0.0.1}:1433:1433"
+    volumes:
+      - dubchef-data:/var/opt/mssql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/bin/bash", "-c", "echo > /dev/tcp/127.0.0.1/1433"]
+      interval: 15s
+      timeout: 5s
+      retries: 15
+      start_period: 45s
+
+  migrate:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: '1433'
+      DB_NAME: DubchefDB
+      DB_MIGRATION_USER: ${DB_MIGRATION_USER:-sa}
+      DB_MIGRATION_PASSWORD: ${DB_MIGRATION_PASSWORD:-}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD required}
+      DB_TRUST_SERVER_CERTIFICATE: '${DB_TRUST_SERVER_CERTIFICATE:-true}'
+      DB_CREATE_IF_MISSING: 'true'
+      SEED_INITIAL_PRICING: 'true'
+    command: ['node','scripts/run-migrations.mjs']
+    restart: 'no'
+
+  redis:
+    image: redis:7-alpine
+    container_name: dubchef-redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    profiles: ['optional-redis']
+    # SQL queue does not require Redis.
+
+  transcription:
+    build:
+      context: .
+      dockerfile: services/transcription/Dockerfile
+    environment:
+      PORT: '4300'
+      WHISPER_MODEL: ${WHISPER_MODEL:-small}
+      TRANSCRIPTION_INTERNAL_TOKEN: ${TRANSCRIPTION_INTERNAL_TOKEN:-}
+    volumes:
+      - dubchef-uploads:/app/server/uploads:ro
+      - dubchef-whisper:/models
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:4300/health')"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+
+  # Microservice Render: TTS (eSpeak-ng) + FFmpeg → MP3/MP4
+  render:
+    build:
+      context: .
+      dockerfile: services/render/Dockerfile
+    container_name: dubchef-render
+    environment:
+      PORT: "4200"
+      RENDER_INTERNAL_TOKEN: ${RENDER_INTERNAL_TOKEN:-}
+    volumes:
+      - dubchef-uploads:/app/server/uploads:ro  # chính xác đường dẫn API lưu video
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4200/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # Microservice dịch (đã có sẵn)
+  translation:
+    build:
+      context: ./services/translation
+      dockerfile: Dockerfile
+    container_name: dubchef-translation
+    # Chỉ chờ Ollama sống. Việc tải model (ollama-init) KHÔNG được chặn api/web: mạng yếu hoặc tải lỗi
+    # thì đăng nhập vẫn dùng được; trạng thái model xem ở /api/health/translation.
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      PORT: "4100"
+      OLLAMA_URL: http://ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:3b}
+      INTERNAL_TOKEN: ${TRANSLATION_INTERNAL_TOKEN:-}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4100/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  api:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    container_name: dubchef-api
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      translation:
+        condition: service_started
+      render:
+        condition: service_healthy
+    environment:
+      PORT: "3000"
+      PAYMENT_MODE: ${PAYMENT_MODE:-disabled}
+      LOCAL_DOCKER_INSTALL: "true"
+      DB_BIND_ADDRESS: ${DB_BIND_ADDRESS:-127.0.0.1}
+      API_BIND_ADDRESS: ${API_BIND_ADDRESS:-127.0.0.1}
+      TRANSLATION_SERVICE_URL: http://translation:4100
+      TRANSLATION_INTERNAL_TOKEN: ${TRANSLATION_INTERNAL_TOKEN:-}
+      TRANSCRIPTION_SERVICE_URL: http://transcription:4300
+      TRANSCRIPTION_INTERNAL_TOKEN: ${TRANSCRIPTION_INTERNAL_TOKEN:-}
+      RENDER_SERVICE_URL: http://render:4200
+      RENDER_INTERNAL_TOKEN: ${RENDER_INTERNAL_TOKEN:-}
+      METRICS_TOKEN: ${METRICS_TOKEN:-}
+      PAYOS_CLIENT_ID: ${PAYOS_CLIENT_ID:-}
+      PAYOS_API_KEY: ${PAYOS_API_KEY:-}
+      PAYOS_CHECKSUM_KEY: ${PAYOS_CHECKSUM_KEY:-}
+      PAYOS_RETURN_URL: ${PAYOS_RETURN_URL:-}
+      PAYOS_CANCEL_URL: ${PAYOS_CANCEL_URL:-}
+      DB_HOST: db
+      DB_PORT: "1433"
+      DB_USER: sa
+      DB_APP_USER: ${DB_APP_USER:-}
+      DB_APP_PASSWORD: ${DB_APP_PASSWORD:-}
+      DB_MIGRATE_ON_START: 'false'
+      DB_SKIP_CREATE: 'true'
+      DB_PASSWORD: ${DB_PASSWORD:?Thieu DB_PASSWORD trong .env}
+      DB_NAME: DubchefDB
+      DB_TRUST_SERVER_CERTIFICATE: "${DB_TRUST_SERVER_CERTIFICATE:-true}"
+      CORS_ORIGIN: "${CORS_ORIGIN:-http://localhost:5173,http://127.0.0.1:5173}"
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@dubchef.vn}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      TOKEN_SECRET: ${TOKEN_SECRET:-}
+    volumes:
+      - dubchef-uploads:/app/server/uploads
+    ports:
+      - "${API_BIND_ADDRESS:-127.0.0.1}:4000:3000"
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 20s
+      timeout: 10s
+      retries: 15
+      start_period: 90s
+
+  # Worker hàng đợi bền vững dùng dbo.CongViecXuLy + dbo.TepXuat.
+  # Redis vẫn là dịch vụ tùy chọn nhưng không phải dependency bắt buộc của queue SQL.
+  job-worker:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    container_name: dubchef-job-worker
+    command: ["node", "src/jobWorker.js"]
+    depends_on:
+      ollama-init:
+        condition: service_completed_successfully   # job dịch cần model đã tải xong
+      migrate:
+        condition: service_completed_successfully
+      render:
+        condition: service_healthy
+      translation:
+        condition: service_healthy
+      transcription:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      DB_HOST: db
+      DB_PORT: "1433"
+      DB_USER: sa
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD required}
+      DB_NAME: DubchefDB
+      DB_BIND_ADDRESS: ${DB_BIND_ADDRESS:-127.0.0.1}
+      API_BIND_ADDRESS: ${API_BIND_ADDRESS:-127.0.0.1}
+      DB_SKIP_CREATE: 'true'
+      DB_MIGRATE_ON_START: 'false'
+      DB_TRUST_SERVER_CERTIFICATE: "${DB_TRUST_SERVER_CERTIFICATE:-true}"
+      TRANSLATION_SERVICE_URL: http://translation:4100
+      TRANSLATION_INTERNAL_TOKEN: ${TRANSLATION_INTERNAL_TOKEN:-}
+      TRANSCRIPTION_SERVICE_URL: http://transcription:4300
+      TRANSCRIPTION_INTERNAL_TOKEN: ${TRANSCRIPTION_INTERNAL_TOKEN:-}
+      RENDER_SERVICE_URL: http://render:4200
+      RENDER_INTERNAL_TOKEN: ${RENDER_INTERNAL_TOKEN:-}
+      TOKEN_SECRET: ${TOKEN_SECRET:-}
+      CORS_ORIGIN: "${CORS_ORIGIN:-http://localhost:5173,http://127.0.0.1:5173}"
+      LOCAL_DOCKER_INSTALL: "true"
+    volumes:
+      - dubchef-uploads:/app/server/uploads
+    restart: unless-stopped
+
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      args:
+        VITE_PUBLIC_BASE_URL: ${VITE_PUBLIC_BASE_URL:-}
+    container_name: dubchef-web
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${WEB_BIND_ADDRESS:-127.0.0.1}:5173:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: dubchef-ollama
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+    volumes:
+      - dubchef-ollama:/root/.ollama
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 20s
+      timeout: 10s
+      retries: 12
+      start_period: 30s
+
+  ollama-init:
+    image: ollama/ollama:latest
+    container_name: dubchef-ollama-init
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:3b}
+    depends_on:
+      ollama:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command: 'ollama pull "$$OLLAMA_MODEL"'
+    restart: "no"
+
+volumes:
+  dubchef-data:
+  dubchef-uploads:
+  dubchef-ollama:
+  dubchef-whisper:

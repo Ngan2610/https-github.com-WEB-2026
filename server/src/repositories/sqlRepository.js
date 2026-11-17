@@ -1,0 +1,550 @@
+// Kết nối SQL Server, tạo CSDL và bảng khi khởi động, và các câu lệnh cho đơn hàng / thanh toán.
+import sql from 'mssql';
+import { createHmac, randomBytes } from 'node:crypto';
+import { ACTIVE_MINUTES, dayKey } from '../stats.js';
+import { hashPassword } from '../auth.js';
+import { attachWorkflows } from '../workflows.js';
+import { attachJobRepository } from './jobRepository.js';
+import { attachAdminOperations } from '../adminOperations.js';
+import { attachLegacyOrders } from '../legacyOrders.js';
+import { attachPricing } from '../pricingRepo.js';
+import { calculateOrderSnapshot } from '../pricingPolicy.js';
+import { lockAccount, charge, grantPaidOrder, refundUnfinishedUpload, balance } from '../entitlements.js';
+
+import { runMigrations } from '../migrations.mjs';
+
+function requiredDbPassword() {
+  if (!process.env.DB_PASSWORD) throw new Error('Thiếu DB_PASSWORD; cấu hình trong .env riêng (không sử dụng mật khẩu mặc định).');
+  return process.env.DB_PASSWORD;
+}
+
+function config(database) {
+  return {
+    server: process.env.DB_HOST || 'localhost',
+    port: Number(process.env.DB_PORT || 1433),
+    user: process.env.DB_APP_USER || process.env.DB_USER || 'sa',
+    password: process.env.DB_APP_USER ? (process.env.DB_APP_PASSWORD || (() => {throw new Error('Missing DB_APP_PASSWORD');})()) : requiredDbPassword(),
+    database,
+    options: { encrypt: true, trustServerCertificate: process.env.DB_TRUST_SERVER_CERTIFICATE === 'true' }, // chỉ tin chứng chỉ tự ký khi chủ động bật
+    pool: { max: 10, min: 0, idleTimeoutMillis: 30000 },
+  };
+}
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/** SQL Server cần vài chục giây để khởi động, nên thử lại cho đến khi kết nối được. */
+async function connect(database, tries = 60) {
+  for (let n = 1; ; n++) {
+    try {
+      return await new sql.ConnectionPool(config(database)).connect();
+    } catch (e) {
+      if (n >= tries) throw e;
+      console.log(`Chờ SQL Server (${n}/${tries}): ${e.message}`);
+      await sleep(2000);
+    }
+  }
+}
+
+const mapOrder = (r) => ({
+  id: r.MaDonHang,
+  userId: r.MaNguoiDung ?? null,
+  ownershipVerified: r.MaNguoiDung != null,
+  name: r.TenKhachHang,
+  email: r.EmailKhachHang,
+  uploads: r.SoVideoDang,
+  outs: r.SoVideoDich,
+  currency: r.LoaiTien.trim(),
+  amountMinor: Number(r.SoTien), // BIGINT trả về dạng chuỗi
+  priceSnapshot: r.PhienBanGiaSnapshot == null ? null : {
+    uploadMinor:Number(r.DonGiaDangSnapshot),translationMinor:Number(r.DonGiaDichSnapshot),
+    version:Number(r.PhienBanGiaSnapshot),currency:r.LoaiTien.trim(),
+  },
+  status: r.TrangThai,
+  createdAt: new Date(r.NgayTao).toISOString(),
+  ref: r.MaThamChieu || null,
+  paymentSource: r.NguonXacNhan || null,
+});
+
+const mapUser = (r) => ({
+  id: r.MaNguoiDung,
+  name: r.HoTen,
+  email: r.Email,
+  role: r.VaiTro,
+  status: r.TrangThai,
+  at: new Date(r.NgayTao).toISOString(),
+  hash: r.MatKhauBam,
+});
+
+/**
+ * Gộp số liệu theo ngày cho một bảng có cột MaKhach và một cột thời gian (`table`, `col` là hằng số trong mã, không lấy từ người dùng).
+ * Dùng chung cho lượt truy cập (LuotTruyCap) và lượt quét QR (LuotQuetQR).
+ */
+async function aggregate(pool, table, col, span, tz, now = Date.now()) {
+  const DAY = 86400000;
+  const key = (i) => dayKey(now - i * DAY, tz);
+  const from = new Date(now - (span * 2 + 1) * DAY);
+  const k = `CONVERT(char(10), DATEADD(HOUR, @tz, ${col}), 23)`;
+  const days = await pool.request()
+    .input('tz', sql.Int, tz).input('from', sql.DateTime2, from)
+    .query(`SELECT ${k} AS d, COUNT(DISTINCT MaKhach) AS visitors, COUNT(*) AS views
+            FROM ${table} WHERE ${col} >= @from GROUP BY ${k}`);
+  const win = await pool.request()
+    .input('tz', sql.Int, tz).input('from', sql.DateTime2, from)
+    .input('c0', sql.Char(10), key(span - 1)).input('c1', sql.Char(10), key(0))
+    .input('p0', sql.Char(10), key(span * 2 - 1)).input('p1', sql.Char(10), key(span))
+    .query(`SELECT
+              COUNT(DISTINCT CASE WHEN d BETWEEN @c0 AND @c1 THEN MaKhach END) AS cv,
+              SUM(CASE WHEN d BETWEEN @c0 AND @c1 THEN 1 ELSE 0 END) AS cw,
+              COUNT(DISTINCT CASE WHEN d BETWEEN @p0 AND @p1 THEN MaKhach END) AS pv,
+              SUM(CASE WHEN d BETWEEN @p0 AND @p1 THEN 1 ELSE 0 END) AS pw
+            FROM (SELECT MaKhach, ${k} AS d FROM ${table} WHERE ${col} >= @from) x`);
+  const tot = await pool.request().query(`SELECT COUNT(DISTINCT MaKhach) AS visitors, COUNT(*) AS views FROM ${table}`);
+  const act = await pool.request().input('m', sql.Int, ACTIVE_MINUTES)
+    .query(`SELECT COUNT(DISTINCT MaKhach) AS n FROM ${table} WHERE ${col} >= DATEADD(MINUTE, -@m, SYSUTCDATETIME())`);
+  const w = win.recordset[0];
+  return {
+    days: days.recordset.map((r) => ({ date: r.d, visitors: r.visitors, views: r.views })),
+    period: { visitors: w.cv || 0, views: w.cw || 0 },
+    prev: { visitors: w.pv || 0, views: w.pw || 0 },
+    totals: { visitors: tot.recordset[0].visitors, views: tot.recordset[0].views },
+    activeNow: act.recordset[0].n,
+  };
+}
+
+/** Tạo CSDL + bảng (nếu chưa có) rồi trả về các hàm thao tác dữ liệu. */
+export async function openRepo() {
+  const database = process.env.DB_NAME || 'DubchefDB';
+  if (!/^[A-Za-z][A-Za-z0-9_]{0,127}$/.test(database)) throw new Error('DB_NAME không hợp lệ');
+  if (process.env.DB_SKIP_CREATE !== 'true') {
+    const master = await connect('master');
+    try { await master.request().query(`IF DB_ID(N'${database}') IS NULL CREATE DATABASE [${database}]`); }
+    finally { await master.close(); }
+  }
+
+  const pool = await connect(process.env.DB_NAME || 'DubchefDB');
+  const migrateOnStart = process.env.DB_MIGRATE_ON_START === 'true' ||
+    (process.env.NODE_ENV !== 'production' && process.env.DB_MIGRATE_ON_START !== 'false');
+  try {
+    if (migrateOnStart) {
+      const changes = await runMigrations(pool);
+      for (const change of changes) console.log('Migration:', change);
+      // Pricing seeds are only for new/development installations.
+      // Production operators seed explicitly after migrations.
+      if (process.env.NODE_ENV !== 'production') {
+        await (async () => {
+          const { readFile } = await import('node:fs/promises');
+          const { dirname, join } = await import('node:path');
+          const { fileURLToPath } = await import('node:url');
+          const seed = await readFile(join(dirname(fileURLToPath(import.meta.url)), '../../../db/seed/001_pricing_defaults.sql'),'utf8');
+          for (const batch of seed.split(/^\s*GO\s*$/im)) if (batch.trim()) await pool.request().batch(batch);
+        })();
+      }
+    }
+  } catch (error) {
+    await pool.close().catch(() => {});
+    throw error;
+  }
+  console.log('SQL Server sẵn sàng.');
+
+  const repo = {
+    close: () => pool.close(),
+    async payVerifiedWebhook(id,details) {
+      return repo.payOrder(id,details); // Real repository requires verified event metadata.
+    },
+    // IPs are never persisted in plaintext; stable across API restarts/instances
+    // because every instance uses the same signed auth secret.
+    async getLoginFailureCount(ip, tokenSecret) {
+      const key=createHmac('sha256',tokenSecret).update(String(ip)).digest('hex');
+      const r=await pool.request().input('k',sql.Char(64),key).query(`SELECT CASE
+        WHEN HanKhoa>SYSUTCDATETIME() THEN SoLan ELSE 0 END AS n
+        FROM dbo.LanDangNhapSai WHERE IpHash=@k`);
+      return r.recordset[0]?.n || 0;
+    },
+    async registerLoginFailure(ip, tokenSecret) {
+      const key=createHmac('sha256',tokenSecret).update(String(ip)).digest('hex');
+      await pool.request().input('k',sql.Char(64),key).query(`BEGIN TRY
+        BEGIN TRAN;
+        IF EXISTS(SELECT 1 FROM dbo.LanDangNhapSai WITH(UPDLOCK,HOLDLOCK) WHERE IpHash=@k)
+          UPDATE dbo.LanDangNhapSai SET
+            SoLan=CASE WHEN HanKhoa>SYSUTCDATETIME() THEN SoLan+1 ELSE 1 END,
+            HanKhoa=CASE WHEN HanKhoa>SYSUTCDATETIME() THEN HanKhoa ELSE DATEADD(MINUTE,15,SYSUTCDATETIME()) END,
+            NgayCapNhat=SYSUTCDATETIME() WHERE IpHash=@k;
+        ELSE
+          INSERT dbo.LanDangNhapSai(IpHash,SoLan,HanKhoa)
+            VALUES(@k,1,DATEADD(MINUTE,15,SYSUTCDATETIME()));
+        COMMIT;
+        END TRY BEGIN CATCH IF @@TRANCOUNT>0 ROLLBACK; THROW; END CATCH`);
+    },
+    async clearLoginFailures(ip, tokenSecret) {
+      const key=createHmac('sha256',tokenSecret).update(String(ip)).digest('hex');
+      await pool.request().input('k',sql.Char(64),key).query('DELETE dbo.LanDangNhapSai WHERE IpHash=@k');
+    },
+    entitlements: async (userId) => balance(pool, userId),
+    async entitlementsForEmail(email) {
+      const r = await pool.request().input('email', sql.NVarChar(254), email)
+        .query("SELECT MaNguoiDung AS id FROM dbo.NguoiDung WHERE Email=@email AND VaiTro='user'");
+      return r.recordset[0] ? balance(pool, r.recordset[0].id) : null;
+    },
+    async ping() {
+      await pool.request().query('SELECT 1 AS ok');
+    },
+
+    async createOrder(o) {
+      const tx = new sql.Transaction(pool); await tx.begin();
+      try {
+        // Locks the source price until the order snapshot is written. Client amount is ignored.
+        const row=(await new sql.Request(tx).input('cur',sql.Char(3),o.currency)
+          .query('SELECT * FROM dbo.BangGia WITH (HOLDLOCK) WHERE LoaiTien=@cur')).recordset[0];
+        if(!row) throw Object.assign(new Error('invalid_currency'),{code:'invalid_currency'});
+        const price={currency:row.LoaiTien.trim(),uploadMinor:Number(row.DonGiaDangMinor),
+          translationMinor:Number(row.DonGiaDichMinor),maxVideos:row.GioiHanVideo,
+          maxTranslations:row.GioiHanBanDich,version:Number(row.PhienBan)};
+        if(o.priceVersion != null && o.priceVersion !== price.version)
+          throw Object.assign(new Error('price_changed'),{code:'price_changed'});
+        const quote=calculateOrderSnapshot(price,o.uploads,o.outs);
+        const r=await new sql.Request(tx).input('uid',sql.Int,o.userId)
+          .input('name',sql.NVarChar(100),o.name).input('email',sql.NVarChar(254),o.email)
+          .input('up',sql.Int,o.uploads).input('out',sql.Int,o.outs)
+          .input('cur',sql.Char(3),quote.currency).input('amt',sql.BigInt,quote.amountMinor)
+          .input('priceUp',sql.BigInt,quote.uploadMinor).input('priceOut',sql.BigInt,quote.translationMinor)
+          .input('version',sql.BigInt,quote.version).input('discount',sql.Int,row.GiamGiaNamPct)
+          .query(`DECLARE @created TABLE(id INT);
+            INSERT INTO dbo.DonHang (MaNguoiDung,TenKhachHang,EmailKhachHang,
+            SoVideoDang,SoVideoDich,LoaiTien,SoTien,DonGiaDangSnapshot,DonGiaDichSnapshot,PhienBanGiaSnapshot,GiamGiaSnapshotPct)
+            OUTPUT inserted.MaDonHang INTO @created SELECT u.MaNguoiDung,@name,@email,@up,@out,@cur,@amt,@priceUp,@priceOut,@version,@discount
+            FROM dbo.NguoiDung u WHERE u.MaNguoiDung=@uid AND u.Email=@email AND u.TrangThai='active';
+            SELECT d.* FROM dbo.DonHang d JOIN @created c ON c.id=d.MaDonHang;`);
+        await tx.commit();
+        return r.recordset[0] ? mapOrder(r.recordset[0]) : null;
+      } catch(e) { await tx.rollback().catch(()=>{}); throw e; }
+    },
+
+    // Tra cứu trạng thái đã lưu của một đơn. userId=null chỉ dành cho webhook đã xác minh chữ ký.
+    async getOrderForPayment(id, userId = null) {
+      const req = pool.request().input('id', sql.Int, id);
+      let q = `SELECT TOP (1) o.*, p.MaThamChieu, p.NguonXacNhan
+               FROM dbo.DonHang o OUTER APPLY
+                 (SELECT TOP (1) MaThamChieu, NguonXacNhan FROM dbo.GiaoDich
+                  WHERE MaDonHang=o.MaDonHang AND TrangThai='success' ORDER BY MaGiaoDich DESC) p
+               WHERE o.MaDonHang=@id`;
+      if (userId !== null) {
+        req.input('uid', sql.Int, userId);
+        q += ' AND o.MaNguoiDung=@uid';
+      }
+      const r = await req.query(q);
+      return r.recordset.length ? mapOrder(r.recordset[0]) : null;
+    },
+
+    /** Đánh dấu đơn đã trả và ghi giao dịch trong cùng một transaction. Trả null nếu đơn không tồn tại hoặc đã trả. */
+    async payOrder(id, { method, ref, source = 'demo', verifiedWebhook = null }) {
+      if (!['demo','payos'].includes(source)) throw new Error('invalid_payment_source');
+      if (source==='payos' && (!verifiedWebhook || !/^payos:[A-Za-z0-9_-]{4,40}$/.test(verifiedWebhook.eventId)
+        || !/^[a-f0-9]{64}$/.test(verifiedWebhook.payloadSha256)))
+        throw new Error('missing_verified_webhook');
+      const tx = new sql.Transaction(pool);
+      await tx.begin();
+      try {
+        const pending = await new sql.Request(tx)
+          .input('id', sql.Int, id)
+          .query(`SELECT * FROM dbo.DonHang WITH(UPDLOCK,HOLDLOCK) WHERE MaDonHang=@id AND TrangThai='pending'`);
+        if (!pending.recordset.length) {
+          await tx.rollback();
+          return null;
+        }
+        const order = pending.recordset[0];
+        if (source==='payos') {
+          // Transactional, unique idempotency record: no financial update without verified event evidence.
+          await new sql.Request(tx).input('event',sql.VarChar(128),verifiedWebhook.eventId)
+            .input('hash',sql.Char(64),verifiedWebhook.payloadSha256).input('orderId',sql.Int,id)
+            .query(`INSERT dbo.WebhookNhan(EventId,NhaCungCap,MaDonHang,ChuKyHopLe,PayloadSha256,KetQua)
+              VALUES(@event,'payos',@orderId,1,@hash,'received')`);
+        }
+        await new sql.Request(tx)
+          .input('id', sql.Int, id)
+          .input('method', sql.VarChar(10), method)
+          .input('amt', sql.BigInt, order.SoTien)
+          .input('cur', sql.Char(3), order.LoaiTien)
+          .input('ref', sql.VarChar(40), ref)
+          .input('source', sql.VarChar(20), source)
+          .query(`INSERT INTO dbo.GiaoDich (MaDonHang, PhuongThuc, SoTien, LoaiTien, TrangThai, MaThamChieu, NguonXacNhan,NhaCungCap,PayOSOrderCode)
+                  VALUES (@id, @method, @amt, @cur, 'success', @ref, @source,
+                    CASE WHEN @source='payos' THEN 'payos' ELSE NULL END,
+                    CASE WHEN @source='payos' THEN @id ELSE NULL END)`);
+        await new sql.Request(tx).input('id',sql.Int,id)
+          .query("UPDATE dbo.DonHang SET TrangThai='paid' WHERE MaDonHang=@id");
+        order.TrangThai = 'paid';
+        // Grant credits in the same transaction as the successful payment.
+        await grantPaidOrder(tx, order, source);
+        if(source==='payos') await new sql.Request(tx).input('event',sql.VarChar(128),verifiedWebhook.eventId)
+          .query("UPDATE dbo.WebhookNhan SET KetQua='processed',NgayCapNhat=SYSUTCDATETIME() WHERE EventId=@event");
+        await tx.commit();
+        return { order: mapOrder({ ...order, MaThamChieu: ref, NguonXacNhan: source }), payment: { method, ref, source } };
+      } catch (e) {
+        await tx.rollback().catch(() => {});
+        throw e;
+      }
+    },
+
+    // Chỉ chủ sở hữu xác thực bằng ID mới được thanh toán. Đơn cũ chưa liên kết
+    // được giữ trong báo cáo Admin, không cho user nhận bằng cách đoán email.
+    async orderOwner(id, userId) {
+      if (!Number.isSafeInteger(userId) || userId < 1) return false;
+      const r = await pool.request().input('id', sql.Int, id).input('uid', sql.Int, userId)
+        .query('SELECT TOP(1) MaDonHang FROM dbo.DonHang WHERE MaDonHang=@id AND MaNguoiDung=@uid');
+      return r.recordset.length > 0;
+    },
+
+    async listOrders(email, limit = 20, userId) {
+      const r = await pool.request()
+        .input('email', sql.NVarChar(254), email)
+        .input('uid', sql.Int, userId)
+        .input('n', sql.Int, limit)
+        .query(`SELECT TOP (@n) o.*, p.MaThamChieu, p.NguonXacNhan
+                FROM dbo.DonHang o
+                OUTER APPLY (SELECT TOP (1) MaThamChieu, NguonXacNhan FROM dbo.GiaoDich p
+                  WHERE p.MaDonHang=o.MaDonHang AND p.TrangThai='success'
+                  ORDER BY p.MaGiaoDich DESC) p
+                WHERE o.MaNguoiDung=@uid
+                ORDER BY o.NgayTao DESC, o.MaDonHang DESC`);
+      return r.recordset.map(mapOrder);
+    },
+
+    // ---- Tài khoản ----
+    async findUser(email) {
+      const r = await pool.request().input('email', sql.NVarChar(254), email)
+        .query('SELECT * FROM dbo.NguoiDung WHERE Email = @email');
+      return r.recordset[0] ? mapUser(r.recordset[0]) : null;
+    },
+
+    async recordLogin(userId, ipAddress) {
+      await pool.request().input('id', sql.Int, userId)
+        .input('ip', sql.NVarChar(64), String(ipAddress || '').slice(0,64))
+        .query('INSERT dbo.LichSuDangNhap(MaNguoiDung,DiaChiIP) VALUES (@id,@ip)');
+    },
+
+    /** Trả null nếu email đã có. */
+    async createUser({ name, email, passwordHash, role = 'user' }) {
+      try {
+        const r = await pool.request()
+          .input('name', sql.NVarChar(100), name)
+          .input('email', sql.NVarChar(254), email)
+          .input('hash', sql.VarChar(200), passwordHash)
+          .input('role', sql.VarChar(10), role)
+          .query(`INSERT INTO dbo.NguoiDung (HoTen, Email, MatKhauBam, VaiTro) OUTPUT inserted.*
+                  VALUES (@name, @email, @hash, @role)`);
+        return mapUser(r.recordset[0]);
+      } catch (e) {
+        if (e.number === 2627 || e.number === 2601) return null; // trùng UNIQUE
+        throw e;
+      }
+    },
+
+    async listUsers() {
+      const r = await pool.request().query('SELECT * FROM dbo.NguoiDung WHERE NgayXoa IS NULL ORDER BY NgayTao DESC, MaNguoiDung DESC');
+      return r.recordset.map(mapUser);
+    },
+
+    async adminAudit(limit = 50) {
+      const r = await pool.request().input('n', sql.Int, limit)
+        .query(`SELECT TOP (@n) MaNhatKy AS id, Loai AS type, DoiTuong AS target,
+          NguoiThucHien AS actor, GiaTriCu AS previous, GiaTriMoi AS [current],
+          ThoiGian AS at FROM dbo.NhatKyQuanTri ORDER BY MaNhatKy DESC`);
+      return r.recordset;
+    },
+
+    // Quản lý danh sách video
+    async listVideos() {
+      const r = await pool.request().query(`
+        SELECT
+          v.MaVideo AS id,
+          v.MaNguoiDung AS userId,
+          v.TenTep AS fileName,
+          v.DungLuong AS size,
+          v.TieuDe AS title,
+          v.TrangThai AS status,
+          v.NgonNguGoc AS originalLanguage,
+          v.DuongDan AS videoUrl,
+          v.NgayTaiLen AS createdAt,
+          u.HoTen AS userName,
+          u.Email AS userEmail
+        FROM dbo.Video v
+        INNER JOIN dbo.NguoiDung u
+          ON v.MaNguoiDung = u.MaNguoiDung
+        ORDER BY v.NgayTaiLen DESC
+      `);
+
+      return r.recordset;
+    },
+
+    /** Trang tổng hợp một chỗ: chỉ đọc dữ liệu thật, không có hàng mẫu. */
+    async dashboardSummary() {
+      const [statistics, users, videos, feedback, orders, currencies] = await Promise.all([
+        this.adminStatistics(),
+        pool.request().query(`SELECT TOP (6) MaNguoiDung AS id,HoTen AS name,Email AS email,
+          VaiTro AS role,TrangThai AS status,NgayTao AS createdAt
+          FROM dbo.NguoiDung ORDER BY NgayTao DESC,MaNguoiDung DESC`),
+        pool.request().query(`SELECT TOP (6) v.MaVideo AS id,v.TieuDe AS title,
+          v.TrangThai AS status,v.NgayTaiLen AS createdAt,n.Email AS email,
+          (SELECT COUNT(*) FROM dbo.ThuyetMinh tm WHERE tm.MaVideo=v.MaVideo) AS narrations,
+          (SELECT COUNT(*) FROM dbo.PhuDe pd WHERE pd.MaVideo=v.MaVideo) AS subtitles
+          FROM dbo.Video v JOIN dbo.NguoiDung n ON n.MaNguoiDung=v.MaNguoiDung
+          ORDER BY v.NgayTaiLen DESC,v.MaVideo DESC`),
+        pool.request().query(`SELECT TOP (6) p.MaPhanHoi AS id,u.Email AS email,
+          p.NoiDung AS message,p.TrangThai AS status,p.NgayTao AS createdAt
+          FROM dbo.PhanHoi p JOIN dbo.NguoiDung u ON u.MaNguoiDung=p.MaNguoiDung
+          ORDER BY p.NgayTao DESC,p.MaPhanHoi DESC`),
+        pool.request().query(`SELECT TOP (6) MaDonHang AS id,EmailKhachHang AS email,
+          SoTien AS amount,LoaiTien AS currency,TrangThai AS status,NgayTao AS createdAt
+          FROM dbo.DonHang ORDER BY NgayTao DESC,MaDonHang DESC`),
+        pool.request().query(`SELECT LoaiTien AS currency, SUM(SoGiaoDich) AS orders,
+          SUM(TongSoTien) AS amount FROM dbo.vw_DoanhThuNgay
+          GROUP BY LoaiTien ORDER BY LoaiTien`),
+      ]);
+      const counts = await pool.request().query(`SELECT
+        (SELECT COUNT(*) FROM dbo.DonHang) AS totalOrders,
+        (SELECT COUNT(*) FROM dbo.DonHang WHERE TrangThai='pending') AS pendingOrders,
+        (SELECT COUNT(*) FROM dbo.PhanHoi WHERE TrangThai<>'resolved')
+          + (SELECT COUNT(*) FROM dbo.LienHe WHERE TrangThai<>'resolved') AS openFeedback,
+        (SELECT COUNT(*) FROM dbo.Video WHERE TrangThai='processing') AS processingVideos,
+        (SELECT COUNT(*) FROM dbo.ThuyetMinh WHERE TrangThaiDuyet='reviewing')
+          + (SELECT COUNT(*) FROM dbo.PhuDe WHERE TrangThaiDuyet='reviewing') AS pendingMediaReview,
+        (SELECT COUNT(*) FROM dbo.PhanHoi WHERE UuTien='high' AND TrangThai<>'resolved')
+          + (SELECT COUNT(*) FROM dbo.LienHe WHERE UuTien='high' AND TrangThai<>'resolved') AS urgentFeedback`);
+      return {
+        statistics: {...statistics,...counts.recordset[0]},
+        latest: {users:users.recordset,videos:videos.recordset,
+          feedback:feedback.recordset,orders:orders.recordset},
+        paidOrdersByCurrency:currencies.recordset,
+        generatedAt:new Date().toISOString(),
+        paymentNote:'Các đơn paid có thể gồm dữ liệu mô phỏng và payOS. Chỉ giao dịch có NguonXacNhan=payos mới được xác minh qua webhook.'
+      };
+    },
+
+    // Thống kê tổng quan Admin từ SQL Server
+    async adminStatistics() {
+      const result = await pool.request().query(`
+        SELECT
+          (SELECT COUNT(*) FROM dbo.NguoiDung)
+            AS totalUsers,
+
+          (SELECT COUNT(*) FROM dbo.Video)
+            AS totalVideos,
+
+          (SELECT COUNT(*) FROM dbo.NgonNgu) AS totalLanguages,
+          (SELECT COUNT(*) FROM dbo.ThuyetMinh) AS totalNarrations,
+          (SELECT COUNT(*) FROM dbo.PhuDe) AS totalSubtitles,
+          (SELECT COUNT(*) FROM dbo.PhanHoi) + (SELECT COUNT(*) FROM dbo.LienHe) AS totalFeedback,
+
+          (SELECT COUNT(*) FROM dbo.LuotQuetQR)
+            AS totalQrScans,
+
+          (SELECT COUNT(*) FROM dbo.LuotTruyCap)
+            AS totalVisits
+      `);
+
+      return result.recordset[0];
+    },
+
+    /** Chỉ đổi người dùng thường (không đụng tới quản trị viên). Trả true nếu có dòng được đổi. */
+    async setUserStatus(email, status, actor = 'system') {
+      const tx = new sql.Transaction(pool);
+      await tx.begin();
+      try {
+        const r = await new sql.Request(tx).input('email', sql.NVarChar(254), email)
+          .input('st', sql.VarChar(10), status)
+          .query(`UPDATE dbo.NguoiDung SET TrangThai=@st
+            OUTPUT deleted.TrangThai AS beforeStatus, inserted.TrangThai AS afterStatus
+            WHERE Email=@email AND VaiTro='user'`);
+        if (!r.recordset.length) { await tx.rollback(); return false; }
+        if (r.recordset[0].beforeStatus === status) { await tx.rollback(); return true; }
+        await new sql.Request(tx).input('actor', sql.NVarChar(254), actor)
+          .input('target', sql.NVarChar(254), email)
+          .input('before', sql.NVarChar(40), r.recordset[0].beforeStatus)
+          .input('after', sql.NVarChar(40), status)
+          .query(`INSERT dbo.NhatKyQuanTri(Loai, DoiTuong, NguoiThucHien, GiaTriCu, GiaTriMoi)
+            VALUES('user_status', @target, @actor, @before, @after)`);
+        await tx.commit();
+        return true;
+      } catch(e) { await tx.rollback().catch(()=>{}); throw e; }
+    },
+
+    async deleteUser(email, actor = 'system') {
+      // Compatibility endpoint: never issue a physical DELETE against NguoiDung.
+      // Keep the existing HTTP 409 when accounting/orders exist. For unused
+      // accounts, anonymize and soft-delete while retaining a stable PK.
+      const orders = await pool.request().input('email', sql.NVarChar(254), email)
+        .query(`SELECT TOP(1) d.MaDonHang FROM dbo.DonHang d
+          JOIN dbo.NguoiDung u ON u.MaNguoiDung=d.MaNguoiDung
+          WHERE u.Email=@email`);
+      if (orders.recordset.length) throw Object.assign(new Error('has_data'), {number:547});
+      return repo.anonymizeUser(email, actor);
+    },
+
+    // Explicit admin-only soft deletion; preserves all foreign keys and accounting history.
+    async anonymizeUser(email, actor) {
+      const tx=new sql.Transaction(pool); await tx.begin();
+      try {
+        const account=(await new sql.Request(tx).input('email',sql.NVarChar(254),email)
+          .query(`SELECT MaNguoiDung FROM dbo.NguoiDung WITH(UPDLOCK,HOLDLOCK)
+            WHERE Email=@email AND VaiTro='user' AND NgayXoa IS NULL`)).recordset[0];
+        if(!account){await tx.rollback();return false;}
+        const hash=hashPassword(randomBytes(32).toString('hex'));
+        await new sql.Request(tx).input('id',sql.Int,account.MaNguoiDung).input('hash',sql.VarChar(200),hash)
+          .query(`UPDATE dbo.NguoiDung SET Email=CONCAT('deleted-',MaNguoiDung,'@dubchef.invalid'),
+            HoTen=N'Tài khoản đã ẩn danh', MatKhauBam=@hash,TrangThai='locked',
+            NgayXoa=SYSUTCDATETIME(),NgayCapNhat=SYSUTCDATETIME()
+            WHERE MaNguoiDung=@id AND VaiTro='user';
+            UPDATE dbo.LichSuDangNhap SET DiaChiIP=N'[redacted]' WHERE MaNguoiDung=@id;`);
+        await new sql.Request(tx).input('id',sql.Int,account.MaNguoiDung).input('actor',sql.NVarChar(254),actor)
+          .query(`INSERT dbo.NhatKyQuanTri(Loai,DoiTuong,NguoiThucHien,NguoiThucHienId)
+           SELECT 'user_anonymize',CONCAT(N'user:',@id),@actor,MaNguoiDung
+           FROM dbo.NguoiDung WHERE Email=@actor AND VaiTro='admin'`);
+        await tx.commit();return true;
+      } catch(e){await tx.rollback().catch(()=>{});throw e;}
+    },
+
+    /** Tạo tài khoản quản trị nếu chưa có (đọc từ biến môi trường khi khởi động). */
+    async ensureAdmin(email, password) {
+      if (await repo.findUser(email)) return false;
+      await repo.createUser({ name: 'Admin', email, passwordHash: hashPassword(password), role: 'admin' });
+      return true;
+    },
+
+    async addMessage({ name, email, body }) {
+      await pool.request()
+        .input('name', sql.NVarChar(100), name)
+        .input('email', sql.NVarChar(254), email)
+        .input('body', sql.NVarChar(2000), body)
+        .query('INSERT INTO dbo.LienHe (HoTen, Email, NoiDung) VALUES (@name, @email, @body)');
+    },
+
+    // ---- Lượt truy cập ----
+    async addVisit({ visitorId, path, lang }) {
+      await pool.request()
+        .input('vid', sql.VarChar(64), visitorId)
+        .input('path', sql.NVarChar(200), path)
+        .input('lang', sql.VarChar(8), lang)
+        .query('INSERT INTO dbo.LuotTruyCap (MaKhach, DuongDan, NgonNgu) VALUES (@vid, @path, @lang)');
+    },
+
+    /** Số liệu thô cho trang Admin: theo ngày, kỳ này / kỳ trước, tổng, đang online. Ngày tính theo múi giờ `tz`. */
+    visitStats: (span, tz, now) => aggregate(pool, 'dbo.LuotTruyCap', 'NgayTruyCap', span, tz, now),
+
+    // ---- Lượt quét mã QR của khách ----
+    async addQrScan({ visitorId, lang }) {
+      await pool.request()
+        .input('vid', sql.VarChar(64), visitorId)
+        .input('lang', sql.VarChar(8), lang)
+        .query('INSERT INTO dbo.LuotQuetQR (MaKhach, NgonNgu) VALUES (@vid, @lang)');
+    },
+
+    /** Cùng dạng với visitStats: visitors = số người quét (không trùng), views = số lượt quét. */
+    qrStats: (span, tz, now) => aggregate(pool, 'dbo.LuotQuetQR', 'NgayQuet', span, tz, now),
+  };
+  attachPricing(pool, repo);
+  attachWorkflows(pool, repo);
+  attachJobRepository(pool, repo);
+  attachAdminOperations(pool, repo);
+  attachLegacyOrders(pool, repo);
+  return repo;
+}

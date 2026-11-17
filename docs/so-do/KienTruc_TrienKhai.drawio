@@ -1,0 +1,126 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net">
+  <diagram id="KienTruc_TrienKhai" name="KienTruc_TrienKhai">
+    <mxGraphModel page="1" pageWidth="1480" pageHeight="890" grid="0" background="#ffffff">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="3" parent="1" vertex="1" value="Docker Compose · mạng nội bộ" style="rounded=0;dashed=1;verticalAlign=top;spacingTop=8;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=17;fontStyle=1;">
+          <mxGeometry as="geometry" x="333" y="23" width="1124" height="710" />
+        </mxCell>
+        <mxCell id="4" parent="1" vertex="1" value="Nginx + React Web&#10;5173 → 80" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="374" y="97" width="214" height="76" />
+        </mxCell>
+        <mxCell id="5" parent="1" vertex="1" value="Node.js / Express API&#10;4000 → 3000" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="675" y="97" width="252" height="76" />
+        </mxCell>
+        <mxCell id="6" parent="1" vertex="1" value="SQL Server · DubchefDB&#10;1433 → 1433 · dubchef-data" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="1173" y="97" width="248" height="76" />
+        </mxCell>
+        <mxCell id="7" parent="1" vertex="1" value="job-worker&#10;Lấy việc và cập nhật tiến&#10;độ" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="675" y="305" width="252" height="79" />
+        </mxCell>
+        <mxCell id="8" parent="1" vertex="1" value="migrate&#10;Chạy trước API và Worker" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="1173" y="244" width="248" height="68" />
+        </mxCell>
+        <mxCell id="9" parent="1" vertex="1" value="dubchef-uploads&#10;Video gốc và tệp xuất" style="shape=partialRectangle;left=0;right=0;top=1;bottom=1;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="1173" y="335" width="248" height="79" />
+        </mxCell>
+        <mxCell id="10" parent="1" vertex="1" value="Dịch · 4100" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="489" y="506" width="217" height="65" />
+        </mxCell>
+        <mxCell id="11" parent="1" vertex="1" value="Phiên âm Whisper ·&#10;4300" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="747" y="506" width="217" height="65" />
+        </mxCell>
+        <mxCell id="12" parent="1" vertex="1" value="Render FFmpeg + TTS ·&#10;4200" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="1010" y="506" width="217" height="65" />
+        </mxCell>
+        <mxCell id="13" parent="1" vertex="1" value="Ollama · 11434&#10;ollama-init tải model" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="489" y="623" width="217" height="66" />
+        </mxCell>
+        <mxCell id="14" parent="1" vertex="1" value="Trình duyệt&#10;Whisper Web Worker / TTS" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="26" y="94" width="239" height="83" />
+        </mxCell>
+        <mxCell id="15" parent="1" vertex="1" value="React Native / Expo&#10;Whisper native /&#10;expo-speech" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="26" y="239" width="239" height="83" />
+        </mxCell>
+        <mxCell id="16" parent="1" vertex="1" value="payOS tùy cấu hình" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="26" y="395" width="239" height="70" />
+        </mxCell>
+        <mxCell id="17" parent="1" vertex="1" value="GitHub Actions → Pages (Web) · EAS (Mobile)&#10;Ứng dụng đã triển khai dùng URL API phù hợp" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="32" y="761" width="550" height="82" />
+        </mxCell>
+        <mxCell id="18" parent="1" edge="1" source="14" target="4" value="HTTP" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="-14" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="19" parent="1" edge="1" source="4" target="5" value="/backend" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="-14" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="20" parent="1" edge="1" source="15" target="5" value="REST + token" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.5;entryX=0;entryY=0.8;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="15" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="21" parent="1" edge="1" source="5" target="6" value="SQL tham số hóa" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="-14" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="22" parent="1" edge="1" source="8" target="6" value="Migration SQL" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0.82;exitY=0;entryX=0.82;entryY=1;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="-55" y="0" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="23" parent="1" edge="1" source="7" target="6" value="Job / metadata" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.19;entryX=0;entryY=0.8;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="-85" y="-20" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="24" parent="1" edge="1" source="7" target="9" value="Đọc / ghi" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="15" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25" parent="1" edge="1" source="5" target="9" value="Tệp nguồn" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.7;entryX=0;entryY=0.08;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="90" y="23" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="26" parent="1" edge="1" source="5" target="10" value="Dịch văn bản" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0;exitY=0.68;entryX=0.26;entryY=0;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="-60" y="35" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="27" parent="1" edge="1" source="7" target="10" value="Dịch nội bộ" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0.15;exitY=1;entryX=0.73;entryY=0;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="-28" y="-7" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="28" parent="1" edge="1" source="7" target="11" value="Phiên âm" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0.58;exitY=1;entryX=0.48;entryY=0;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="46" y="0" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="29" parent="1" edge="1" source="7" target="12" value="Kết xuất" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0.84;exitY=1;entryX=0.36;entryY=0;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="20" y="-12" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="30" parent="1" edge="1" source="10" target="13" value="Suy luận" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="47" y="0" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="31" parent="1" edge="1" source="16" target="5" value="HTTPS checkout / webhook" style="noEdgeStyle=1;rounded=0;endArrow=none;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.3;entryX=0;entryY=1;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="-5" y="35" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

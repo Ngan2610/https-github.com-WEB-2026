@@ -1,0 +1,247 @@
+# CI: chạy mỗi khi đẩy code hoặc mở Pull Request
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  secret-scan:
+    name: Gitleaks - no secrets in Git history / PR
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Scan repository and commits (FAIL on leaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify archive privacy rules
+        run: python3 scripts/package-share.py --check
+
+  dependency-audit:
+    name: Dependency audit - high/critical must fail
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Audit Server, Web và Mobile
+        shell: bash
+        run: |
+          status=0
+          for project in server web mobile; do
+            echo "::group::Dependency audit - $project"
+            npm audit --prefix "$project" --audit-level=high || status=1
+            echo "::endgroup::"
+          done
+          exit "$status"
+
+  docker-build:
+    name: Build backend image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f server/Dockerfile .
+      - run: docker build -f web/Dockerfile web
+      - run: docker build -t dubchef-translation services/translation
+      - name: Build render microservice (no npm dependencies)
+        run: docker build -f services/render/Dockerfile .
+
+  shared:
+    name: Nội dung dùng chung (test + đồng bộ)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Kiểm tra mã nguồn không chứa bí mật khi chia sẻ
+        run: python3 scripts/package-share.py --check
+      - name: Source contracts
+        run: node --test scripts/qa-source-contracts.test.mjs scripts/release-config.test.mjs scripts/acceptance-e2e.test.mjs scripts/lan.test.mjs
+      - name: Test nội dung 3 ngôn ngữ
+        run: node --test shared/*.test.mjs
+      - name: Kiểm tra web/mobile đã đồng bộ với shared
+        run: |
+          node scripts/sync-shared.mjs
+          test -z "$(git status --porcelain)" || (echo "Chạy 'npm run sync' rồi commit lại"; git status --short; exit 1)
+
+  render-service:
+    name: Render HTTP service (auth, input safety, timestamp)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm --prefix services/render test
+      - run: node --test server/test/jobPipeline.test.mjs server/test/subtitleExport.test.mjs
+
+  translation-service:
+    name: Microservice dịch (từ điển ẩm thực + quy đổi đơn vị)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/translation
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Test (không cần Ollama, dùng fetch giả)
+        run: npm test
+
+  server:
+    name: API + SQL + REAL MP3/MP4 (no skipped tests)
+    runs-on: ubuntu-latest
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        options: >-
+          --health-cmd="SQLCMDPASSWORD=$MSSQL_SA_PASSWORD /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -Q 'SELECT 1' -b"
+          --health-interval=10s --health-timeout=5s --health-retries=15 --health-start-period=15s
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: IntegrationOnly!2026
+        ports: ['1433:1433']
+    env:
+      DB_INTEGRATION: 'true'
+      MEDIA_INTEGRATION: 'true'
+      RUN_AUDIO_E2E: '1'
+      DB_HOST: 127.0.0.1
+      DB_PORT: '1433'
+      DB_USER: sa
+      DB_PASSWORD: IntegrationOnly!2026
+      DB_TRUST_SERVER_CERTIFICATE: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install media engines and reproducible backend dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg espeak-ng
+          npm ci --prefix server
+      - name: Full backend suite - no skips accepted
+        shell: bash
+        run: |
+          set -o pipefail
+          node --experimental-test-coverage --test-coverage-lines=80 \
+            --test-coverage-include='server/src/entitlements.js' \
+            --test-coverage-include='server/src/orders.js' \
+            --test-coverage-include='server/src/payos.js' \
+            --test server/test/*.test.mjs | tee backend-test.log
+          ! grep -Eq '# skipped [1-9][0-9]*' backend-test.log
+
+  web:
+    name: Web (React.js)
+    runs-on: ubuntu-latest
+    env:
+      ONNXRUNTIME_NODE_INSTALL: skip
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - name: ESLint (kiểm tra chất lượng code)
+        run: npm run lint
+      - name: Test (API + giao diện)
+        run: npm test
+      - name: Build
+        run: npm run build
+
+  mobile:
+    name: Mobile (React Native / Expo)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: npm ci
+      - name: ESLint (kiểm tra chất lượng code)
+        run: npm run lint
+      - name: Test giao diện (Jest + Testing Library)
+        run: npm test -- --runInBand
+      - name: Đóng gói JavaScript cho Android (kiểm tra import, cú pháp)
+        run: npx expo export --platform android --output-dir dist
+
+  media-integration:
+    name: Render MP3/MP4 thật (FFmpeg + eSpeak-ng)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci --prefix server
+      - name: Cài công cụ xuất âm thanh/video
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg espeak-ng
+      - name: Xuất file thật, ffprobe xác minh codec
+        env:
+          MEDIA_INTEGRATION: 'true'
+        run: node --test server/test/media.integration.test.mjs
+
+  sql-integration:
+    name: SQL Server và toàn bộ Admin
+    runs-on: ubuntu-latest
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        options: >-
+          --health-cmd="SQLCMDPASSWORD=$MSSQL_SA_PASSWORD /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -Q 'SELECT 1' -b"
+          --health-interval=10s --health-timeout=5s --health-retries=15 --health-start-period=15s
+        env:
+          ACCEPT_EULA: "Y"
+          MSSQL_SA_PASSWORD: IntegrationOnly!2026
+        ports:
+          - 1433:1433
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci --prefix server
+      - name: Kiểm thử SQL trên database tạm riêng biệt
+        env:
+          DB_INTEGRATION: 'true'
+          DB_HOST: 127.0.0.1
+          DB_PORT: '1433'
+          DB_USER: sa
+          DB_PASSWORD: IntegrationOnly!2026
+          DB_TRUST_SERVER_CERTIFICATE: 'true'
+        run: node --test server/test/sql.integration.test.mjs server/test/integrity.integration.test.mjs
+
+  transcription-service:
+    name: Whisper STT HTTP contract and safe paths
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest discover -s services/transcription -p 'test_*.py' -v
+      - run: docker build -f services/transcription/Dockerfile .

@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net">
+  <diagram id="DFD_Muc_2_1" name="DFD_Muc_2_1">
+    <mxGraphModel page="1" pageWidth="1380" pageHeight="256" grid="0" background="#ffffff">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="3" parent="1" vertex="1" value="Khách / thành viên /&#10;Admin" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="26" y="33" width="188" height="72" />
+        </mxCell>
+        <mxCell id="4" parent="1" vertex="1" value="1.1  Đăng ký và đăng nhập" style="ellipse;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="529" y="19" width="300" height="100" />
+        </mxCell>
+        <mxCell id="5" parent="1" edge="1" source="3" target="4" value="Thông tin xác thực" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.27;entryX=0;entryY=0.334;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="-16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="6" parent="1" edge="1" source="4" target="3" value="Phiên hoặc lỗi" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0;exitY=0.666;entryX=1;entryY=0.73;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="7" parent="1" vertex="1" value="D1  Tài khoản và lịch sử&#10;đăng nhập" style="shape=partialRectangle;left=0;right=0;top=1;bottom=1;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=14;fontStyle=0;">
+          <mxGeometry as="geometry" x="1142" y="30" width="210" height="78" />
+        </mxCell>
+        <mxCell id="8" parent="1" edge="1" source="7" target="4" value="Hồ sơ và trạng thái" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0;exitY=0.29;entryX=1;entryY=0.336;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="-16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9" parent="1" edge="1" source="4" target="7" value="Tài khoản / lần đăng nhập" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.666;entryX=0;entryY=0.71;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="10" parent="1" vertex="1" value="Thành viên / Admin" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=15;fontStyle=0;">
+          <mxGeometry as="geometry" x="26" y="146" width="188" height="72" />
+        </mxCell>
+        <mxCell id="11" parent="1" vertex="1" value="1.2  Hồ sơ và đổi mật khẩu" style="ellipse;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=16;fontStyle=1;">
+          <mxGeometry as="geometry" x="529" y="132" width="300" height="100" />
+        </mxCell>
+        <mxCell id="12" parent="1" edge="1" source="10" target="11" value="Yêu cầu hồ sơ hoặc thay đổi" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.27;entryX=0;entryY=0.334;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="-16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="13" parent="1" edge="1" source="11" target="10" value="Hồ sơ hoặc xác nhận" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0;exitY=0.666;entryX=1;entryY=0.73;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="14" parent="1" vertex="1" value="D1  Tài khoản và lịch sử&#10;đăng nhập" style="shape=partialRectangle;left=0;right=0;top=1;bottom=1;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontFamily=DejaVu Sans;fontSize=14;fontStyle=0;">
+          <mxGeometry as="geometry" x="1142" y="143" width="210" height="78" />
+        </mxCell>
+        <mxCell id="15" parent="1" edge="1" source="14" target="11" value="Hồ sơ hiện tại" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=0;exitY=0.29;entryX=1;entryY=0.336;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="-16" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="16" parent="1" edge="1" source="11" target="14" value="Tên / băm mới" style="noEdgeStyle=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#ffffff;fontFamily=DejaVu Sans;fontSize=13;exitX=1;exitY=0.666;entryX=0;entryY=0.71;exitPerimeter=0;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" x="0" y="0">
+            <mxPoint as="offset" x="0" y="16" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

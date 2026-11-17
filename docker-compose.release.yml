@@ -1,0 +1,16 @@
+# Merge with docker-compose.yml. No databases/uploads are removed.
+services:
+  api:
+    image: ${DUBCHEF_IMAGE_PREFIX:?Set image prefix}/api:${DUBCHEF_RELEASE:?Set tested commit SHA}
+  migrate:
+    image: ${DUBCHEF_IMAGE_PREFIX}/api:${DUBCHEF_RELEASE}
+  job-worker:
+    image: ${DUBCHEF_IMAGE_PREFIX}/api:${DUBCHEF_RELEASE}
+  web:
+    image: ${DUBCHEF_IMAGE_PREFIX}/web:${DUBCHEF_RELEASE}
+  translation:
+    image: ${DUBCHEF_IMAGE_PREFIX}/translation:${DUBCHEF_RELEASE}
+  render:
+    image: ${DUBCHEF_IMAGE_PREFIX}/render:${DUBCHEF_RELEASE}
+  transcription:
+    image: ${DUBCHEF_IMAGE_PREFIX}/transcription:${DUBCHEF_RELEASE}

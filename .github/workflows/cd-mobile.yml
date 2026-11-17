@@ -1,0 +1,55 @@
+# CD (mobile): tạo bản cài Android (APK) bằng EAS Build khi gắn tag mobile-v*, hoặc bấm chạy tay
+# Cần: tài khoản Expo + secret EXPO_TOKEN (Settings > Secrets and variables > Actions)
+# Lần đầu chạy 'npx eas init' trong thư mục mobile để gắn dự án với tài khoản Expo.
+name: CD Mobile
+
+on:
+  push:
+    tags: ['mobile-v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate Expo project and backend configuration
+        working-directory: .
+        env:
+          EXPO_PUBLIC_API_URL: ${{ vars.EXPO_PUBLIC_API_URL }}
+          EXPO_PROJECT_ID: ${{ vars.EXPO_PROJECT_ID }}
+          EXPO_OWNER: ${{ vars.EXPO_OWNER }}
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: node scripts/configure-eas.mjs --write --require-token
+      - name: Cài đặt, lint và test
+        run: |
+          npm ci
+          npm run lint
+          npm test -- --runInBand
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          packager: npm
+          token: ${{ secrets.EXPO_TOKEN }}
+      - name: Build APK (chạy trên máy chủ Expo)
+        shell: bash
+        run: |
+          eas build --platform android --profile preview --non-interactive --wait --json | tee eas-build.json
+      - name: Download finished APK and record verification
+        working-directory: .
+        run: node scripts/collect-eas-apk.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dubchef-android-apk
+          path: mobile/dubchef-preview.apk
+          if-no-files-found: error
+          retention-days: 14
